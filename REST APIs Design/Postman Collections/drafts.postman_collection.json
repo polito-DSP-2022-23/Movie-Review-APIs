@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "97b23c58-762d-4e87-98dc-ac16bc3072b0",
+		"name": "drafts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20887323"
+	},
+	"item": [
+		{
+			"name": "getAllDrafts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/6/reviews/6/drafts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"6",
+						"reviews",
+						"6",
+						"drafts"
+					]
+				},
+				"description": "The drafts of the film with ID filmID issued to the review with ID reviewId is retrieved. This operation requires authentication and only the owner of the film or the reviewers for whom the review was issued can view the drafts."
+			},
+			"response": []
+		},
+		{
+			"name": "getSingleDraft",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/6/reviews/6/drafts/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"6",
+						"reviews",
+						"6",
+						"drafts",
+						"2"
+					]
+				},
+				"description": "The draft of the review with ID reviewId, issued for the film with ID filmID is retrieved. This operation requires authentication. Only the owner of the film or the reviewers for whom the review was issued can view the draft."
+			},
+			"response": []
+		},
+		{
+			"name": "createDraft",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"reviewerId\": 3,\r\n    \"proposedRating\":5,\r\n    \"proposedReview\":\"Quite engaging movie.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/6/reviews/8/drafts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"6",
+						"reviews",
+						"8",
+						"drafts"
+					]
+				},
+				"description": "A for the review with ID reviewId of the film with ID filmId is created. The draft is created by the user with ID reviewerId, and contains a proposed review and a proposed rating. This operation can be performed only by one of the reviewers for whom the review was issued."
+			},
+			"response": []
+		}
+	]
+}

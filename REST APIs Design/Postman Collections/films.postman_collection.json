@@ -1,0 +1,285 @@
+{
+	"info": {
+		"_postman_id": "f5ae7df3-b02a-4d88-8a18-1d5845b2a0b7",
+		"name": "films",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20887323"
+	},
+	"item": [
+		{
+			"name": "createFilm",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Matrix\",\r\n  \"private\": true,\r\n  \"watchDate\": \"2013-05-01\",\r\n  \"rating\": 8,\r\n  \"favorite\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films"
+					]
+				},
+				"description": "A new film is created by the authenticated user."
+			},
+			"response": []
+		},
+		{
+			"name": "getPrivateFilms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/private",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"private"
+					]
+				},
+				"description": "The private films of the logged-in user are retrieved. A pagination mechanism is implemented to limit the size of messages.\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "getSinglePrivateFilm",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/private/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"private",
+						"4"
+					]
+				},
+				"description": "The private film with ID filmId is retrieved. This operation can be performed on the film if the user who performs the operation is the film's owner."
+			},
+			"response": []
+		},
+		{
+			"name": "updateSinglePrivateFilm",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"The Godfather\",\r\n  \"watchDate\": \"2018-05-01\",\r\n  \"rating\": 10,\r\n  \"favorite\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films/private/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"private",
+						"4"
+					]
+				},
+				"description": "The private film with ID filmId is updated. This operation does not allow changing its visibility. This operation can be performed only by the owner."
+			},
+			"response": []
+		},
+		{
+			"name": "deleteSinglePrivateFilm",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/private/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"private",
+						"4"
+					]
+				},
+				"description": "The private film with ID filmId is deleted. This operation can only be performed by the owner."
+			},
+			"response": []
+		},
+		{
+			"name": "getPublicFilms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public"
+					]
+				},
+				"description": "The public films (i.e., the films that are visible for all the users of the service) are retrieved. This operation does not require authentication. A pagination mechanism is implemented to limit the size of messages.\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "getInvitedFilms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/invited",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"invited"
+					]
+				},
+				"description": "The public films that the logged-in user has been invited to review are retrieved. A pagination mechanism is implemented to limit the size of messages.\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "getSinglePublicFilm",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"1"
+					]
+				},
+				"description": "The public film with ID filmId is retrieved. This operation does not require authentication.\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "updateSinglePublicFilm",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Your Name\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"1"
+					]
+				},
+				"description": "The public film with ID filmId is updated. This operation does not allow changing its visibility. This operation can be performed only by the owner."
+			},
+			"response": []
+		},
+		{
+			"name": "deleteSinglePublicFilm",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"11"
+					]
+				},
+				"description": "The public film with ID filmId is deleted. This operation can only be performed by the owner.\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "getSingleUser",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/users/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"users",
+						"1"
+					]
+				},
+				"description": "The available information (password excluded) about the user specified by userId is retrieved."
+			},
+			"response": []
+		}
+	]
+}

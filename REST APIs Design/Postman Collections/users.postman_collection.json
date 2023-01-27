@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "d77ef3c6-19af-441d-bcd6-a21ec4f57121",
+		"name": "users",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20887323"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"user.dsp@polito.it\",\r\n    \"password\": \"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/users/authenticator?type=login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"users",
+						"authenticator"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "login"
+						}
+					]
+				},
+				"description": "Authentication with user 1."
+			},
+			"response": []
+		},
+		{
+			"name": "getUsers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "The available information (passwords excluded) about all the users is retrieved. This operation is available only to authenticated users."
+			},
+			"response": []
+		}
+	]
+}

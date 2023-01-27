@@ -1,0 +1,7 @@
+{
+    "$schema": "../agreement_schema.json",
+    "draftId": 1,
+    "reviewerId": 2,
+    "agreement": false,
+    "notes": "I don't quite agree because I found the moview quite boring."
+}

@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "951122d8-d02f-49f0-9259-94698cf25ed5",
+		"name": "reviews",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20887323"
+	},
+	"item": [
+		{
+			"name": "getFilmReviews",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/1/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"1",
+						"reviews"
+					]
+				},
+				"description": "All the reviews that have been issued/completed for the film with ID filmId are retrieved. A pagination mechanism is implemented to limit the size of messages. This operation does not require authentication."
+			},
+			"response": []
+		},
+		{
+			"name": "deleteSingleReview",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/1/reviews/11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"1",
+						"reviews",
+						"11"
+					]
+				},
+				"description": "The review of the film with ID filmId and issued to the review with ID reviewId is deleted. This operation can only be performed by the owner, and only if the review has not yet been completed by the reviewer."
+			},
+			"response": []
+		},
+		{
+			"name": "issueFilmReview",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {    \r\n        \"filmId\":\"3\",\r\n        \"reviewerIds\":[4,5]\r\n    }\r\n\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/3/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"3",
+						"reviews"
+					]
+				},
+				"description": "The film with ID filmId is assigned to one or more users for review and the corresponding reviews are created. The users are specified in the review representations in the request body. This operation can only be performed by the owner."
+			},
+			"response": []
+		},
+		{
+			"name": "getSingleReview",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/1/reviews/11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"1",
+						"reviews",
+						"11"
+					]
+				},
+				"description": "The review of the film with ID filmID issued to the review with ID reviewID. This operation does not require authentication."
+			},
+			"response": []
+		},
+		{
+			"name": "updateSingleReview",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"completed\": true,\r\n    \"reviewDate\": \"2023-01-27\",\r\n    \"rating\": 8,\r\n    \"review\": \"A wonderful movie that makes you dream.\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/films/public/2/reviews/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"films",
+						"public",
+						"2",
+						"reviews",
+						"5"
+					]
+				},
+				"description": "The review with ID reviewId issued for the film with ID filmId is completed. This operation allows setting the \"completed\" property to the \"true\" value, and changing the values of the \"reviewDate\", \"rating\", and \"review\" properties. This operation is performed only by single user reviews. "
+			},
+			"response": []
+		}
+	]
+}

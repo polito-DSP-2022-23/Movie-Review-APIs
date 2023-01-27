@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://www.my-schema.com/review_draft_schema.json",
+    "title": "Review Draft",
+    "description": "JSON Schema for Review Draft data structures",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "$schema": {
+        "type": "string",
+        "description": "path to the JSON Schema to use for the validation of the data structure"
+      },
+      "draftId":{
+        "type":"integer",
+        "description": "unique identifier of the draft associated to a review identified by reviewId"
+      },
+      "reviewId":{
+        "type": "integer",
+        "description": "unique identifier of the review to which the draft is associated"
+      }
+      ,
+      "proposedRating": {
+        "type": "integer",
+        "description": "the proposed rating of the review",
+        "minimum": 1,
+        "maximum": 10
+      },
+      "proposedReview": {
+        "type": "string",
+        "description": "a textual description of the proposed review",
+        "maxLength": 1000
+      },
+      "reviewerId": {
+        "type": "integer",
+        "description": "the id of the author of the review draft"
+      },
+      "open": {
+        "type": "boolean",
+        "description": "a boolean property set to true upon draft creation. It is set to false if all review co-assignees have expressed their agreement or disagreement.",
+        "default": "true"
+      } 
+    },
+    "required": ["proposedRating","proposedReview","reviewerId", "draftId", "reviewId"]
+}

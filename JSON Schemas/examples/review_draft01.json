@@ -1,0 +1,9 @@
+{
+    "$schema": "../review_draft_schema.json",
+    "draftId": 1,
+    "reviewId": 1,
+    "proposedRating": 9,
+    "proposedReview": "Breathtaking movie with a lot of plot twists.",
+    "reviewerId": 1,
+    "open": true
+}

@@ -1,0 +1,3270 @@
+openapi: 3.0.1
+info:
+  title: Film Manager
+  description: REST APIs for the interaction with the Film Manager service.
+  termsOfService: 'http://swagger.io/terms/'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+servers:
+  - url: 'https://todo.swagger.io/v2'
+  - url: 'http://todo.swagger.io/v2'
+tags:
+  - name: films
+    description: the set of all the films
+  - name: films/private
+    description: the set of all the private films of the logged-in user
+  - name: 'films/private/{filmId}'
+    description: the private film with ID filmId
+  - name: films/public
+    description: the set of all the public films
+  - name: films/public/invited
+    description: the set of the public films that the logged-in user has been invited to review
+  - name: 'films/public/{filmId}'
+    description: the public film with ID filmId
+  - name: films/public/{filmId}/reviews
+    description: the reviews issued for the public film with ID filmId
+  - name: films/public/{filmId}/reviews/{reviewId}
+    description: the review with ID reviewId issued for the public film with ID filmId
+  - name: films/public/assignments
+    description: the assignments of review invitations to users
+  - name: films/public/{filmId}/reviews/{reviewId}/drafts
+    description: the drafts of a review with ID reviewId of the film with ID filmId
+  - name: films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}
+    description: the draft with ID draftId, associated with the review with ID reviewId issued for the film with ID filmId
+  - name: films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements
+    description: the agreements of the draft with ID draftId associated with the review with ID reviewId, issued for the film with ID filmId
+  - name: films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements/{reviewerId}
+    description: the agreement made by the user with ID reviewerId of the draft with ID draftId associated with the review with ID reviewId, issued for the film with ID filmId
+  - name: users
+    description: the set of all the users
+  - name: users/authenticator
+    description: the authenticator
+  - name: 'users/{userId}'
+    description: the user with ID userId
+paths:
+  '/api/films':
+    post:
+      tags:
+        - films
+      security:
+        - cookieAuth: []
+      summary: Create a new film
+      description: A new film is created by the authenticated user.
+      operationId: createFilm
+      requestBody:
+        description: Representation of the film to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Film'
+            examples:
+              Example 1:
+                value:
+                  title: "Matrix"
+                  private: true
+                  watchDate: "2013-05-01"
+                  rating: 8
+                  favorite: true
+              Example 2:
+                value:
+                  title: "Inception"
+                  private: false
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Film'
+              examples:
+                Example 1:
+                  value:
+                    id: 11,
+                    title: "Matrix"
+                    owner: 1
+                    private: true
+                    watchDate: "2013-05-01"
+                    rating: 8
+                    favorite: true
+                    self: "/api/films/private/11"
+                Example 2:
+                  value:
+                    id: 12,
+                    title: "Inception"
+                    owner: 2
+                    private: false
+                    self: "/api/films/private/12"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                empty body:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Empty request body.
+                missing private:
+                  value:
+                    errors: 
+                      - param: Server
+                        msg: private property is required. 
+                missing title:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: title property is required.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/private': 
+    get:
+      tags:
+        - films/private
+      security:
+        - cookieAuth: []
+      summary: Retrieve the private films of the logged-in user 
+      description: >-
+        The private films of the logged-in user are retrieved. A pagination mechanism is implemented to limit the size of messages.
+      operationId: getPrivateFilms
+      parameters:
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: 'The id of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  films:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Film'
+                  next:
+                    type: string
+                    format: uri
+              examples:
+                Example:
+                  value:
+                    totalPages: 1
+                    currentPage: 1
+                    totalItems: 2
+                    films:
+                      - id: 4
+                        title: "Weathering with You"
+                        owner: 1
+                        private: true
+                        self: "/api/films/private/4"
+                      - id: 11
+                        title: "Matrix"
+                        owner: 1
+                        private: true
+                        watchDate: "2013-05-01"
+                        rating: 8
+                        favorite: true
+                        self: "/api/films/private/11"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string 
+  '/api/films/private/{filmId}':
+    get:
+      tags:
+        - 'films/private/{filmId}'
+      security:
+        - cookieAuth: []
+      summary: Retrieve a private film
+      description: The private film with ID filmId is retrieved. This operation can be performed on the film if the user who performs the operation is the film's owner.
+      operationId: getSinglePrivateFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+              examples:
+                Example:
+                  value:
+                    id: 4
+                    title: "Weathering with You"
+                    owner: 1
+                    private: true
+                    self: "/api/films/private/4"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    put:
+      tags:
+        - 'films/private/{filmId}'
+      security:
+        - cookieAuth: []
+      summary: Update a private film
+      description: The private film with ID filmId is updated. This operation does not allow changing its visibility. This operation can be performed only by the owner.
+      operationId: updateSinglePrivateFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The updated film object that needs to replace the old object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Film'
+            examples:
+              Example 1:
+                value: 
+                  title: "The Godfather"
+                  watchDate: "2018-05-01"
+                  rating: 10
+                  favorite: false
+              Example 2:
+                value: 
+                  watchDate: "2018-05-01"
+                  rating: 10
+                  favorite: true
+              Example 4:
+                value: 
+                  favorite: true
+              Example 5:
+                value: 
+                  rating: 10
+        required: true
+      responses:
+        '204':
+          description: No Content
+          content: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing.
+                missing body: 
+                  value: 
+                    errors:
+                      - param: Server
+                        msg: empty body request, nothing to update.
+                invalid body 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: title must be a string.
+                invalid body 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: watchDate must be a string in the format yyyy-mm-dd.
+                invalid body 3:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: rating must be an integer between 1 and 10
+                invalid body 4:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: favorite must be a boolean value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '409':
+          description: Conflict (attempt to make unallowed change, e.g., visibility)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The visibility of the film cannot be changed.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    delete:
+      tags:
+        - 'films/private/{filmId}'
+      security:
+        - cookieAuth: []
+      summary: Delete a private film
+      description: The private film with ID filmId is deleted. This operation can only be performed by the owner.
+      operationId: deleteSinglePrivateFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation - No Content
+          content: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public': 
+    get:
+      tags:
+        - films/public
+      summary: Retrieve the public films
+      description: >-
+        The public films (i.e., the films that are visible for all the users of the service) are retrieved. This operation does not require authentication. A pagination mechanism is implemented to limit the size of messages.
+      operationId: getPublicFilms
+      parameters:
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: 'The id of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  films:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Film'
+                  next:
+                    type: string
+                    format: uri
+              examples:
+                Example:
+                  value:
+                    totalPages: 3
+                    currentPage: 1
+                    totalItems: 6
+                    films:
+                      - id: 1
+                        title: "Your Name"
+                        owner: 1
+                        private: false
+                        watchDate: "2021-10-03"
+                        rating: 9
+                        favorite: true
+                        self: "/api/films/public/1"
+                      - id: 2
+                        title: "Heaven's Feel"
+                        owner: 2
+                        private: false
+                        self: "/api/films/public/2"
+                    next": "/api/films/public?pageNo=2"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/invited': 
+    get:
+      tags:
+        - films/public/invited
+      security:
+        - cookieAuth: []
+      summary: Retrieve the public films that the logged-in user has been invited to review
+      description: >-
+        The public films that the logged-in user has been invited to review are retrieved. A pagination mechanism is implemented to limit the size of messages.
+      operationId: getInvitedFilms
+      parameters:
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: 'The id of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  films:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Film'
+                  next:
+                    type: string
+                    format: uri
+              examples:
+                Example:
+                  value: 
+                    totalPages: 2
+                    currentPage: 1
+                    totalItems: 3
+                    films:
+                      - id: 3
+                        title: "You Can (Not) Redo"
+                        owner: 1
+                        private: false
+                        self: "/api/films/public/3"
+                      - id: 6
+                        title: "Spirited Away"
+                        owner: 5
+                        private: false
+                        self: "/api/films/public/6"
+                    next: "/api/films/public/invited?pageNo=2"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}': 
+    get:
+      tags:
+        - films/public/{filmId}
+      summary: Retrieve a public film
+      description: >-
+        The public film with ID filmId is retrieved. This operation does not require authentication.
+      operationId: getSinglePublicFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Film'
+              examples:
+                Example:
+                  value:
+                    id: 1
+                    title: "Your Name"
+                    owner: 1
+                    private: false
+                    watchDate: "2021-10-03"
+                    rating: 9
+                    favorite: true
+                    self: "/api/films/public/1"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    put:
+      tags:
+        - 'films/public/{filmId}'
+      security:
+        - cookieAuth: []
+      summary: Update a public film
+      description: The public film with ID filmId is updated. This operation does not allow changing its visibility. This operation can be performed only by the owner.
+      operationId: updateSinglePublicFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The updated film object that needs to replace the old object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Film'
+            examples:
+              Example 1:
+                value: 
+                  title: "The Godfather"
+        required: true
+      responses:
+        '204':
+          description: No Content
+          content: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+                empty body:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: empty request body, nothing to update.
+                invalid body:
+                  value: 
+                    errors:
+                      - param: Server
+                        msg: watchDate, rating and/or favorite should not be present as parameters in a public filmId.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '409':
+          description: Conflict (attempt to make unallowed change, e.g., visibility)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The visibility of the film cannot be changed.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    delete:
+      tags:
+        - 'films/public/{filmId}'
+      security:
+        - cookieAuth: []
+      summary: Delete a public film
+      description: The public film with ID filmId is deleted. This operation can only be performed by the owner.
+      operationId: deleteSinglePublicFilm
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation - No Content
+          content: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews':
+    post:
+      tags:
+        - 'films/public/{filmId}/reviews'
+      security:
+        - cookieAuth: []
+      summary: Issue film review to some users
+      description: The film with ID filmId is assigned to one or more users for review and the corresponding reviews are created. The users are specified in the review representations in the request body. This operation can only be performed by the owner.
+      operationId: issueFilmReview
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: the new film reviews, including the users to whom they are issued and the filmId for which the reviews are being issued. 
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Review'
+            examples:
+              Example 1:
+                value:
+                  - filmId: 3
+                    reviewerIds: [4,5] 
+              Example 2:
+                value:
+                  - filmId: 3
+                    reviewerIds: [4,5]   
+                  - filmId: 3
+                    reviewerIds: [6]    
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Review'
+              examples:
+                Example 1:
+                  value:
+                    - filmId: 3
+                      reviewId: 13
+                      reviewerIds: [4,5]
+                      completed: false
+                      self: "/api/films/public/3/reviews/13"
+                Example 2:
+                  value:
+                    - filmId: 3
+                      reviewId: 14
+                      reviewerIds: [3]
+                      completed: false
+                      self: "/api/films/public/3/reviews/14"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+                duplicate parameters: 
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There are duplicate values of reviewerIds in group reviews.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film does not exist.
+        '409':
+          description: Conflict (e.g., Unknown reviewer id)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user/s with ID/S reviewerId/s do/es not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews'
+      summary: Retrieve the list of all the reviews that have been issued/completed for a film 
+      description: >-
+        All the reviews that have been issued/completed for the film with ID filmId are retrieved. A pagination mechanism is implemented to limit the size of messages.
+        This operation does not require authentication. 
+      operationId: getFilmReviews
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film whose reviews must be retrieved
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: ID of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      totalPages:
+                        type: integer
+                      currentPage:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      reviews:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Review'
+                      next:
+                        type: string
+                        format: uri
+              examples:
+                Example:
+                  value:
+                    totalPages: 1
+                    currentPage: 1
+                    totalItems: 2
+                    reviews:
+                      - filmId: 1
+                        reviewId: 11
+                        reviewerIds: [1]
+                        completed: false
+                        self: "/api/films/public/1/reviews/11"
+                      - filmId: 1
+                        reviewId: 12
+                        reviewerIds: [1,2,3]
+                        completed: false
+                        self: "/api/films/public/1/reviews/12"
+        '400': 
+          description: Bad Request 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, it must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId parameter missing
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The page does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews/{reviewId}':
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}'
+      summary: Retrieve a review that has been issued/completed for a film 
+      description: >-
+        The review of the film with ID filmID issued to the review with ID reviewID. This operation does not require authentication. 
+      operationId: getSingleReview
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film whose reviews must be retrieved
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review issued for the film with ID filmID 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+              examples:
+                Example:
+                  value:
+                    filmId: 1
+                    reviewId: 11
+                    reviewerIds: [1]
+                    completed: false
+                    self: "/api/films/public/1/reviews/11"
+        '400': 
+          description: Bad Request 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId or reviewId, they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId or reviewId parameters missing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The review does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    delete:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}'
+      security:
+        - cookieAuth: []
+      summary: Delete a review invitation
+      description: The review of the film with ID filmId and issued to the review with ID reviewId is deleted. This operation can only be performed by the owner, and only if the review has not yet been completed by the reviewer.
+      operationId: deleteSingleReview
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film whose review invitation must be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review issued for the film with ID filmID 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation - No Content
+          content: {}
+        '400': 
+          description: Bad Request 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId or reviewId, they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId or reviewId parameters missing.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The review has been already completed, so the invitation cannot be deleted anymore.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The review does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    put:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}'
+      security:
+        - cookieAuth: []
+      summary: Complete a review
+      description: The review with ID reviewId issued for the film with ID filmId is completed. This operation allows setting the "completed" property to the "true" value, and changing the values of the "reviewDate", "rating", and "review" properties. This operation is performed only by single user reviews. 
+      operationId: updateSingleReview
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film whose review must be completed
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The properties of the Review object that must be updated
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/Review"
+            examples:
+              Example 1:
+                value: 
+                  completed: true
+                  reviewDate: "2023-01-27"
+                  rating: 8
+                  review: "A wonderful movie that makes you dream."
+      responses:
+        '204':
+          description: No Content
+          content: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: reviewId and/or filmId should be an integer number.
+                missing properties:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The completed property is absent.
+                conflicts:
+                  value: 
+                    errors: 
+                      - param: Server
+                        msg: The completed property is false, but it should be set to true.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not a reviewer of the film.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user belongs to a cooperative review, it cannot perform this operation.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The review does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/assignments':
+    post:
+      tags:
+        - films/public/assignments
+      security:
+        - cookieAuth: []
+      summary: Assign automatically review invitations for the unassigned public films owned by the authenticated user in a balanced manner
+      description: >-
+        The films owned by the authenticated user who performed the request and that are not assigned to any user for review, are automatically assigned to the
+        users of the service in a balanced manner. Only authenticated users can make this request.
+      operationId: assignReviewBalanced
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    filmId:
+                     type: integer
+                    reviewerId:
+                      type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews/{reviewId}/drafts':
+    post:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts'
+      security:
+        - cookieAuth: []
+      summary: Create a draft for a film review
+      description: >-
+        A for the review with ID reviewId of the film with ID filmId is created. The draft is created by the user with ID reviewerId, and contains a proposed review and a proposed rating. This operation can be performed only by one of the reviewers for whom the review was issued.
+      operationId: createDraft
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review to which the draft is associated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: the new film review draft, including the author, proposed review and proposed rating
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Draft'
+            examples:
+              Example:
+                value:
+                  reviewerId: 3
+                  proposedRating: 5
+                  proposedReview: "Quite engaging movie."
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+              examples:
+                Example:
+                  value:
+                    draftId: 5
+                    reviewId: 8
+                    reviewerId: 3
+                    proposedRating: 5
+                    proposedReview: "Quite engaging movie."
+                    open: true
+                    self: "/api/films/public/6/reviews/8/drafts/5"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId or reviewId, they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId or reviewId parameters missing
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not one of the assigned reviewers.
+        '409':
+          description: Conflict (e.g., wrong film id or review id)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The reviewerId field of the draft object is different from the id of the user requesting the operation.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There is already an open draft for this review. 
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts'
+      summary: Retrieve the drafts that has been issued/completed by a group with review ID reviewId for a film with ID filmId
+      description: >-
+        The drafts of the film with ID filmID issued to the review with ID reviewId is retrieved. This operation requires authentication and only the owner of the film or the reviewers for whom the review was issued can view the drafts. 
+      operationId: getAllDrafts
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film 
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review to which the draft is associated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: 'The id of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                    $ref: '#/components/schemas/Draft'
+              examples:
+                Example:
+                  value:
+                    totalPages: 1
+                    currentPage: 1
+                    totalItems: 2
+                    drafts:
+                      - draftId: 2
+                        reviewId: 6
+                        reviewerId: 5
+                        proposedRating: 5
+                        proposedReview: "A heartwarming and touching story that will leave you feeling uplifted and inspired. A must-see for all ages."
+                        open: false
+                        self: "/api/films/public/6/reviews/6/drafts/2"
+                      - draftId: 3
+                        reviewId: 6
+                        reviewerId: 2
+                        proposedRating: 2
+                        proposedReview: "A dreadful movie with little original ideas in it."
+                        open: true
+                        self: "/api/films/public/6/reviews/6/drafts/3"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId or reviewId, they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId or reviewId parameters missing
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film nor is it one of the assigned reviewers.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There's no review with ID reviewId associated to the film with ID filmId
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There are no drafts for the review with ID reviewId associated to a film with ID filmId 
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}':
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}'
+      summary: Retrieve a draft associated to the review with ID reviewId, issued for the film with ID filmId.
+      description: >-
+        The draft of the review with ID reviewId, issued for the film with ID filmID is retrieved. This operation requires authentication. Only the owner of the film or the reviewers for whom the review was issued can view the draft. 
+      operationId: getSingleDraft
+      parameters:
+        - name: draftId
+          in: path
+          description: ID of draft 
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review associated with the requested draft
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: filmId
+          in: path
+          description: ID of the film associated to the review 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+              examples:
+                Example:
+                  value:
+                    draftId: 2
+                    reviewId: 6
+                    reviewerId: 5
+                    proposedRating: 5
+                    proposedReview: "A heartwarming and touching story that will leave you feeling uplifted and inspired. A must-see for all ages."
+                    open: false
+                    self: "/api/films/public/6/reviews/6/drafts/2"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, reviewId or draftId, they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId, reviewId and/or draftId parameters missing
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film nor is it one of the assigned reviewers.
+        '404':
+          description: Not Found
+          content:  
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The draft does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements':
+    post:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements'
+      security:
+        - cookieAuth: []
+      summary: Create an agreement for a film review draft 
+      description: >-
+        An agreement associated to the draft with ID draftId of the review with ID reviewId for the film with ID filmId is created. The agreement is created by user with ID reviewerId and contains agreement and notes if there's a disagreement. 
+        If it is the last agreement of a draft, then it closes the draft if there was at least one disagreement. If all reviewers have agreed, then the draft will be closed and the corresponding review with ID reviewId will be updated with the
+        rating and review taken from the draft, completed set to true and reviewDate will be set to the current date. 
+      operationId: createAgreement
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review with ID reviewId to which the draft is associated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: draftId
+          in: path
+          description: ID of the draft
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: the new review draft, including the agreement, reviewer posting the agreement and notes in case of disagreement.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreement'
+            examples:
+              Example:
+                value:
+                  reviewerId: 3
+                  agreement: true
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+              examples:
+                Example:
+                  value:
+                    draftId: 4
+                    reviewerId: 3
+                    agreement: true
+                    self: "/api/films/public/9/reviews/9/drafts/4/agreements/3"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                invalid parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: Invalid filmId, reviewId and/or draftId they must be a number.
+                missing parameters:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: filmId, reviewId and/or draftId parameters missing.
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The draft has already been closed, all agreements have been posted.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not one of the assigned reviewers.
+                Example 3:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user has already published an agreement for this draft.
+        '409':
+          description: Conflict (e.g., wrong film id or group id)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The reviewerId field of the agreement object is different from the id of the user requesting the operation.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements'
+      summary: Retrieve the agreements that have been included in the draft with ID draftId, related to to the review with ID reviewId and film filmId
+      description: >-
+        The agreements of the review draft of the film with ID filmID issued to the review with ID reviewId is retrieved. This operation requires authentication. Only the owner of the film or the reviewers for whom the review was issued can view the agreements.
+      operationId: getAllAgreements
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film associated with reviewId whose draft agreements must be retrieved
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review to which the draft is associated with
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: draftId
+          in: path
+          description: ID of the review draft
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: pageNo
+          required: false
+          schema:
+            type: integer
+          description: 'The id of the requested page (if absent, the first page is returned)'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                    $ref: '#/components/schemas/Agreement'
+              examples:
+                Example:
+                  value:
+                    totalPages: 1
+                    currentPage: 1
+                    totalItems: 2
+                    agreements: 
+                      - draftId: 2
+                        reviewerId: 1
+                        agreement: false
+                        notes: "I found it quite boring."
+                        self: "/api/films/public/6/reviews/6/drafts/2/agreements/1"
+                      - draftId: 2
+                        reviewerId: 1
+                        agreement: true
+                        self: "/api/films/public/6/reviews/6/drafts/2/agreements/1"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film nor is it one of the assigned reviewers   
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The page does not exist.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There's no draftId with ID draftId associated with the review with ID reviewId issued for the film with ID filmId 
+                Example 3:
+                  value:
+                    errors: 
+                      - param: Server
+                        msg: There are no agreements for the draft with ID draftId associated with a reviewId reviewId.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements/{reviewerId}': 
+    get:
+      tags:
+        - 'films/public/{filmId}/reviews/{reviewId}/drafts/{draftId}/agreements/{reviewerId}'
+      summary: Retrieve the agreement made by a specific user for a draft of a review issued for a film  
+      description: >-
+        The agreement made by user with ID reivewerId associated with the draft with ID draftId, of the review with ID review ID issued for the film with ID filmId. This operation requires authentication and can only be performed by the owner of the film  or the reviewers for whom the review was issued.
+      operationId: getSingleAgreement 
+      parameters:
+        - name: filmId
+          in: path
+          description: ID of the film associated to the review 
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewId
+          in: path
+          description: ID of the review associated with the requested draft
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: draftId
+          in: path
+          description: ID of draft 
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: reviewerId
+          in: path
+          description: ID of the user who gave the agreement or disagreement
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+              examples:
+                Example 1:
+                  value:
+                      draftId: 2
+                      reviewerId: 1
+                      agreement: false
+                      notes: "I found it quite boring."
+                      self: "/api/films/public/6/reviews/6/drafts/2/agreements/1"
+                Example 2: 
+                  value:
+                    draftId: 2
+                    reviewerId: 2
+                    agreement: true
+                    self: "/api/films/public/6/reviews/6/drafts/2/agreements/2"
+                     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '403':
+          description: Forbidden
+          content:
+            pplication/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The user is not the owner of the film nor is it one of the assigned reviewers   
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: There's no draftId with ID draftId associated with the review with ID reviewId issued for the film with ID filmId 
+                Example 2:
+                  value:
+                    errors: 
+                      - param: Server
+                        msg: The agreement does not exist.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        param:
+                          type: string
+                        msg:
+                          type: string
+  '/api/users':
+    get:
+      tags:
+        - users
+      security:
+        - cookieAuth: []
+      summary: Get information about the users
+      description: >-
+        The available information (passwords excluded) about all the
+        users is retrieved. This operation is available only to authenticated users.
+      operationId: getUsers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              examples:
+                Example:
+                  value:
+                    - id: 1
+                      name: "User"
+                      email: "user.dsp@polito.it"
+                      self: "/api/users/1"
+                    - id: 2
+                      name: "Frank"
+                      email: "frank.stein@polito.it"
+                      self: "/api/users/2"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '404':
+          description: Not Found
+          content: {}
+  '/api/users/{userId}':
+    get:
+      tags:
+        - 'users/{userId}'
+      security:
+        - cookieAuth: []
+      summary: Get information about a user
+      description: >-
+        The available information (password excluded) about the user
+        specified by userId is retrieved.
+      operationId: getSingleUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Example:
+                  value:
+                    id: 1
+                    name: "User"
+                    email: "user.dsp@polito.it"
+                    self: "/api/users/1"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Not authorized'
+              examples:
+                Not authorized:
+                  value:
+                    error: 'Not authorized'
+        '404':
+          description: Not Found
+          content: {}
+  '/api/users/authenticator':
+    post:
+      tags:
+        - users/authenticator
+      summary: Logs a user in or out
+      description: >-
+        The user who wants to log in or out sends the user data to the
+        authenticator which performs the operation. For logout, the operation is possible only for authenticated users.
+      operationId: authenticateUser
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: The operation type ("login" or "logout")
+      requestBody:
+        description: >-
+          The data of the user who wants to perform log in. For login
+          the structure must contain email and password.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              Example 1:
+                value:
+                  email: "user.dsp@polito.it"
+                  password: "password"
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Example:
+                  value:
+                      id: 1
+                      name: "User"
+                      email: "user.dsp@polito.it"        
+        '204':
+          description: No Content
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: token=abcde12345; Path=/; HttpOnly
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              examples:
+                Not authorized:
+                  value:
+                    msg: 'Missing credentials.'
+components:
+  schemas:
+    User: 
+      description: schema for User data structures
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: path to the JSON Schema to use for the validation of the JSON data structure
+            describing the user
+        id:
+          type: integer
+          description: unique identifier for the user
+        email:
+          type: string
+          format: email
+          description: user email
+        name:
+          type: string
+          description: username
+        password:
+          type: string
+          minLength: 6
+          maxLength: 20
+          description: user password
+        self: 
+          type: string
+          format: uri
+      required:
+      - email
+    Film:
+      description: schema for Film data structures
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: path to the JSON Schema to use for the validation of the JSON data structure
+            describing the film
+        id:
+          type: integer
+          description: unique identifier for the film data structure
+        title:
+          type: string
+          description: textual title of the film
+        owner:
+          type: integer
+          description: unique identifier of the the film data structure owner
+        private:
+          type: boolean
+          description: true if only the owner of the film data structure can access it, false otherwise
+          default: 'true'
+        watchDate:
+          type: string
+          format: date
+          description: the date when the film was watched by the owner
+        rating:
+          type: integer
+          description: the rating the owner has given to the film
+          minimum: 1
+          maximum: 10
+        favorite:
+          type: boolean
+          description: 'true if the film is among the favourite
+            ones of the owner, false otherwise '
+          default: 'false'
+        self: 
+          type: string
+          format: uri
+      required:
+      - title
+      - private
+    Review:
+      description: schema for Review data structures
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: path to the JSON Schema to use for the validation of the JSON data structure
+            describing the Review
+        filmId:
+          type: integer
+          description: unique identifier of the film for which a review invitation has been
+            issued
+        reviewId:
+          type: integer
+          description: unique identifier for the review
+        reviewerIds:
+          type: array
+          minItems: 1
+          items:
+              type: integer 
+          description: unique identifiers of the the user or users who have received this review assignment
+        completed:
+          type: boolean
+          description: true if the review has been completed, false
+            otherwise
+          default: 'false'
+        reviewDate:
+          type: string
+          format: date
+          description: the date when the review has been completed by the invited user
+        rating:
+          type: integer
+          description: the rating the reviewer has given to the film
+          minimum: 1
+          maximum: 10
+        review:
+          type: string
+          description: a textual description of the review
+          maxLength: 1000
+        self: 
+          type: string
+          format: uri
+    Draft:
+      description: JSON Schema for Review Draft data structures
+      type: object
+      additionalProperties: false
+      properties:
+        "$schema":
+          type: string
+          description: path to the JSON Schema to use for the validation of the data structure
+        draftId:
+          type: integer
+          description: unique identifier of the draft associated to a review identified by reviewId
+        reviewId:
+          type: integer
+          description: unique identifier of the review to which the draft is associated
+        proposedRating:
+          type: integer
+          description: the proposed rating of the review
+          minimum: 1
+          maximum: 10
+        proposedReview:
+          type: string
+          description: a textual description of the proposed review
+          maxLength: 1000
+        reviewerId:
+          type: integer
+          description: the id of the author of the review draft
+        open:
+          type: boolean
+          description: a boolean property set to true upon draft creation. It is set to
+            false if all review co-assignees have expressed their agreement or disagreement.
+          default: 'true'
+        self: 
+          type: string
+          format: uri
+      required:
+      - proposedRating
+      - proposedReview
+      - reviewerId
+    Agreement:
+      description: JSON Schema for Agreement data structure
+      type: object
+      additionalProperties: false
+      properties:
+        "$schema":
+          type: string
+          description: path to the JSON Schema to use for the validation of the data structure
+        draftId:
+          type: integer
+          description: unique identifier of the review draft to which this agreement belongs
+        reviewerId:
+          type: integer
+          description: unique identifier of the co-assignee who has made this agreement
+        agreement:
+          type: boolean
+          description: agreement or disagreement of the co-assignee, true if the co-assignee
+            agrees, and false otherwise
+        notes:
+          type: string
+          description: reason for the disagreement
+          maxLength: 1000
+      required:
+      - agreement
+      - reviewerId
+  securitySchemes:
+    cookieAuth:
+      description: JWT to identify the authenticated user.
+      type: apiKey
+      in: cookie
+      name: connect.sid
