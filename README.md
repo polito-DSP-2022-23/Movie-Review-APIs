@@ -87,8 +87,7 @@ The following assumptions were made during the design of the APIs:
 - A cooperative group cannot write a second review for the same film.
 - A review can have only one group or one single reviewer assigned.
 - A single review or a cooperative review can be deleted only if it is not marked as completed. In case it is deleted, all the associated records (e.g. drafts, agreements, reviewers) are also deleted in the db.
-- Drafts and agreements can be seen also by the owner of the film, as well as the assigned reviewers
-- Once a review is completed, it cannot be modified again in case of a single reviewer and no new drafts can be created in case of a cooperative review.
+- Drafts and agreements can be seen also by the owner of the film, as well as the assigned reviewers.
 
 ### Schema Design
 
