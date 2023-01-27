@@ -63,6 +63,28 @@
 				"description": "The available information (passwords excluded) about all the users is retrieved. This operation is available only to authenticated users."
 			},
 			"response": []
+		},
+		{
+			"name": "getSingleUser",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/users/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"users",
+						"1"
+					]
+				},
+				"description": "The available information (password excluded) about the user specified by userId is retrieved."
+			},
+			"response": []
 		}
 	]
 }

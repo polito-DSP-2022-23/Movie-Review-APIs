@@ -66,7 +66,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"reviewerId\": 3,\r\n    \"proposedRating\":5,\r\n    \"proposedReview\":\"Quite engaging movie.\"\r\n}",
+					"raw": "{\r\n    \"reviewerId\": 1,\r\n    \"proposedRating\":5,\r\n    \"proposedReview\":\"Quite engaging movie.\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

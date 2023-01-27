@@ -242,7 +242,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3001/api/films/public/11",
+					"raw": "http://localhost:3001/api/films/public/3",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -252,32 +252,10 @@
 						"api",
 						"films",
 						"public",
-						"11"
+						"3"
 					]
 				},
 				"description": "The public film with ID filmId is deleted. This operation can only be performed by the owner.\r\n"
-			},
-			"response": []
-		},
-		{
-			"name": "getSingleUser",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/api/users/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"users",
-						"1"
-					]
-				},
-				"description": "The available information (password excluded) about the user specified by userId is retrieved."
 			},
 			"response": []
 		}

@@ -88,6 +88,7 @@ The following assumptions were made during the design of the APIs:
 - A review can have only one group or one single reviewer assigned.
 - A single review or a cooperative review can be deleted only if it is not marked as completed. In case it is deleted, all the associated records (e.g. drafts, agreements, reviewers) are also deleted in the db.
 - Drafts and agreements can be seen also by the owner of the film, as well as the assigned reviewers
+- Once a review is completed, it cannot be modified again in case of a single reviewer and no new drafts can be created in case of a cooperative review.
 
 ### Schema Design
 
@@ -100,8 +101,6 @@ The draft properties were also defined in a separate schema from that of the rev
 - validation: separating the schemas allows for more specifici and accurate validation of the data, as the properties and constraints of each schema can be clearly defined.
 - By separating the schema of the draft it might also be more secure to provide the information only to the inteded parties and not to show them directly to the public.
 - flexibility: the separation of the two schemas allows the API to evolve and adapt to different use cases, by adding or removing properties from one schema without affecting the other.
-
-
 - The **'Review' schema** has been changed from the one in the provided solution for LAB1 to adapt it to the new requirements. More specifically, the property reviewerId has been substituted by reviewId, which is now the unique identifier of the review. An additional property has been added (reviewerIds) to represent the reviewers of the associated review. It is an array containing the unique identifiers of the users who have received a review invitation. The array can be 1 item long, in the case of single user reviews. All the other fields remain unchanged. In particular, the filmId property will be used to keep the association between review and film. The new required fields have been updated to: filmId, reviewId and reviewerIds.
 - The **'Review Draft' schema** has been designed to describe the draft data structure. The draft object will be identified by the unique identifier draftId. Additionally, the schema contains the reviewId property which describes the association between a draft to its review. For this reason, it is not necessary to also add the properties from the review schema, as it would be redundant. All the other properties (including proposedRating, proposedReview, reviewerId - author of the draft - and open) have been added as requested in the requirements.
 - A separate '**Agreement' schema** has been designed to describe the specific agreements to a draft. It is identified by the joint properties of draftId and reviewerId, which is the reviewer who has made the agreement/disagreement. Additional properties such as agreeement and notes have been added, as requested in the requirements. More specifically, if the agreement is set to false (disagreement), then notes will be required.

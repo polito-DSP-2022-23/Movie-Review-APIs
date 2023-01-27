@@ -34,7 +34,7 @@ exports.getAllDrafts = function(req) {
 const createDraftObject = function(row, filmId) {
     var completedDraft = (row.open === 1) ? true : false;
     return new Draft(row.draftId, row.reviewId, filmId, row.reviewerId, row.proposedRating, row.proposedReview, completedDraft);
-  }
+}
 
 /**
  * Retrieve the number of drafts of the review with ID reviewId, associated with the film with ID filmId
@@ -125,6 +125,7 @@ exports.createDraft = function(draft, owner, filmId, reviewId) {
         try{
             await checkDraftAuthor(filmId, reviewId, owner);  
             await checkOpenDrafts(filmId, reviewId); 
+            await checkReviewCompleted(reviewId, filmId);
             const sql = 'INSERT INTO drafts(reviewId, proposedRating, proposedReview, reviewerId) VALUES(?,?,?,?)';
             db.run(sql, [reviewId, draft.proposedRating, draft.proposedReview, owner], function(err) {
                 if (err) {
@@ -179,6 +180,21 @@ const getPagination = function(req) {
                 })
             }else {
                 resolve();  
+            }
+        });
+    });
+}
+
+const checkReviewCompleted = function(reviewId, filmId){
+    return new Promise((resolve, reject)=>{
+        let sql = 'SELECT completed FROM reviews r WHERE r.reviewId=? AND r.filmId=?'; 
+        db.all(sql, [reviewId, filmId], (err, rows)=>{
+            if(err){
+                reject(err);
+            }else if(rows[0].completed===1){
+                reject("403C"); 
+            }else{
+                resolve(); 
             }
         });
     });

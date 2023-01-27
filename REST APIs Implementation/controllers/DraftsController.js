@@ -24,6 +24,8 @@ module.exports.createDraft = function createDraft (req, res, next) {
     .catch(function (response) {
       if (response == "404A"){
         utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'No review with ID reviewId is associated with filmId.' }], }, 404);
+      }else if(response=="403C"){
+        utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The review to which the draft is associated has already been completed.' }], }, 403);
       }else if(response == 403){
         utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The user is not one of the assigned reviewers.' }], }, 403);
       }

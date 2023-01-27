@@ -340,6 +340,7 @@ const issueSingleReviewers=function(sql4, filmId, reviewId, reviewerIds, reviewe
         
         try{
             await checkSingleReviewer(reviewId, reviewerId); 
+            await checkReviewCompleted(reviewId, filmId); 
             let sql1="SELECT * FROM reviews r WHERE r.filmId=? AND r.reviewId=?"; 
             db.all(sql1, [filmId, reviewId], (err, rows)=>{
                 if(err){
@@ -409,6 +410,21 @@ const checkSingleReviewer = function (reviewId, reviewerId){
                 reject("403A"); 
             }else if(rows[0].total_count>1){
                 reject("403B"); 
+            }else{
+                resolve(); 
+            }
+        });
+    });
+}
+
+const checkReviewCompleted = function(reviewId, filmId){
+    return new Promise((resolve, reject)=>{
+        let sql = 'SELECT completed FROM reviews r WHERE r.reviewId=? AND r.filmId=?'; 
+        db.all(sql, [reviewId, filmId], (err, rows)=>{
+            if(err){
+                reject(err);
+            }else if(rows[0].completed===1){
+                reject("403C"); 
             }else{
                 resolve(); 
             }

@@ -26,7 +26,7 @@ tags:
     description: the set of the public films that the logged-in user has been invited to review
   - name: 'films/public/{filmId}'
     description: the public film with ID filmId
-  - name: 'films/public/{filmId}/reviews'
+  - name: films/public/{filmId}/reviews
     description: the reviews issued for the public film with ID filmId
   - name: films/public/{filmId}/reviews/{reviewId}
     description: the review with ID reviewId issued for the public film with ID filmId
@@ -126,12 +126,12 @@ paths:
                   value:
                     errors: 
                       - param: Server
-                        msg: Private property is required. 
+                        msg: private property is required. 
                 missing title:
                   value:
                     errors:
                       - param: Server
-                        msg: Title property is required.
+                        msg: title property is required.
         '401':
           description: Unauthorized
           content:
@@ -1905,6 +1905,11 @@ paths:
                     errors:
                       - param: Server
                         msg: The user belongs to a cooperative review, it cannot perform this operation.
+                Example 3:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The review has already been completed.
         '404':
           description: Not Found
           content:
@@ -2115,6 +2120,11 @@ paths:
                     errors:
                       - param: Server
                         msg: The user is not one of the assigned reviewers.
+                Example 2: 
+                  value:
+                    errors: 
+                      - param: Server
+                        msg: The review to which the draft is associated has already been completed.
         '409':
           description: Conflict (e.g., wrong film id or review id)
           content:

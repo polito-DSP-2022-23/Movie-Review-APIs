@@ -176,6 +176,8 @@ module.exports.updateSingleReview = function updateSingleReview (req, res, next)
             utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The user is not a reviewer of the film' }], }, 403);
         }else if(response == "403B"){
             utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The user belongs to a cooperative review, it cannot perform this operation.' }], }, 403);
+        }else if(response=="403C"){
+            utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The review has already been completed.' }], }, 403);
         }
         else if (response == 404){
             utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The review does not exist.' }], }, 404);
