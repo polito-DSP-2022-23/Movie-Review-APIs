@@ -61,7 +61,7 @@ var draftSchema = JSON.parse(fs.readFileSync(path.join('.', 'json_schemas', 'rev
 var agreementSchema = JSON.parse(fs.readFileSync(path.join('.', 'json_schemas', 'agreement_schema.json')).toString()); 
 
 var validator = new Validator({ allErrors: true });
-validator.ajv.addSchema([userSchema, filmSchema, reviewSchema, draftSchema]);
+validator.ajv.addSchema([userSchema, filmSchema, reviewSchema, draftSchema, agreementSchema]);
 const addFormats = require('ajv-formats').default;
 addFormats(validator.ajv);
 var validate = validator.validate;
