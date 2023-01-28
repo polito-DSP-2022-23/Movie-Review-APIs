@@ -88,7 +88,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"title\": \"The Godfather\",\r\n  \"watchDate\": \"2018-05-01\",\r\n  \"rating\": 10,\r\n  \"favorite\": false\r\n}",
+					"raw": "{\r\n    \"title\": \"Matrix\",\r\n    \"watchDate\": \"2022-01-20\",\r\n    \"rating\": 8,\r\n    \"favorite\": true\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

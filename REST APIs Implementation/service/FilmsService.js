@@ -81,6 +81,8 @@ const e = require('cors');
                 reject(err);
             else if (rows.length === 0)
                 reject(404);
+            else if (rows[0].private == 0)                 
+                reject(409)
             else if(owner != rows[0].owner) {
                 reject(403);
             }
@@ -95,9 +97,9 @@ const e = require('cors');
                     sql3+=`${prop} = ?, `; 
                     parameters.push(film[prop]); 
                 }
+                sql3= sql3.slice(0, -2);
               }
-              sql3= sql3.slice(0, -2);
-              sql3 = sql3.concat(' WHERE id = ?');
+              sql3+= ' WHERE id = ?';
               parameters.push(filmId);
               console.log(sql3)
               db.run(sql3, parameters, function(err) {
@@ -195,6 +197,8 @@ const e = require('cors');
                 reject(err);
             else if (rows.length === 0)
                 reject(404);
+            else if (rows[0].private == 1)                 
+                reject(409)
             else if(owner != rows[0].owner) {
                 reject(403);
             }

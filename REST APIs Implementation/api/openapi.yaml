@@ -533,11 +533,16 @@ paths:
                         msg:
                           type: string
               examples:
-                Example:
+                Example 1:
                   value:
                     errors:
                       - param: Server
                         msg: The visibility of the film cannot be changed.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film is marked as public.
         '404':
           description: Not Found
           content:
@@ -1076,11 +1081,16 @@ paths:
                         msg:
                           type: string
               examples:
-                Example:
+                Example 1:
                   value:
                     errors:
                       - param: Server
                         msg: The visibility of the film cannot be changed.
+                Example 2:
+                  value:
+                    errors:
+                      - param: Server
+                        msg: The film is marked as private.
         '404':
           description: Not Found
           content:

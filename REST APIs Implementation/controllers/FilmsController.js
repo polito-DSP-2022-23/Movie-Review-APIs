@@ -220,6 +220,8 @@ module.exports.updateSinglePrivateFilm = function updateSinglePrivateFilm (req, 
             }
             else if (response == 404){
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The film does not exist.' }], }, 404);
+            }else if(response==409){
+                utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The film is marked as public.' }], }, 409);
             }
             else {
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': response }], }, 500);
@@ -313,6 +315,8 @@ module.exports.updateSinglePublicFilm = function updateSinglePublicFilm (req, re
             }
             else if (response == 404){
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The film does not exist.' }], }, 404);
+            }else if(response == 409){
+                utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The film is marked as private.' }], }, 409);
             }
             else {
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': response }], }, 500);

@@ -117,7 +117,7 @@ In addition to the new schemas and modified/added APIs, the 'openapi.yaml' file 
       - req.params to make sure that filmId is present and it is a number
       - request body is not empty
       - checkRequestBody is a function which receives as parameters the request body and a flag to indicate if the operation is for a public or private film. If it is a private film, then it checks the title, watchDate format, rating and favorite. If the request body also has a private field, then it returns an error to remind that visibility cannot be changed.
-        I also changed the corresponding service function so that it was consistent with the requirements.
+        I also changed the corresponding service function so that it was consistent with the requirements. Another change is that in the original function, the user had to always update the title, because in the schema it was required. However, since I removed the validation with the schema for the reasons I already mentioned, I decided to make it more flexible, in such a way that the user can modify anything except owner, id and visibility of the film. So, in short, the user can decide to update all of the parameters of a film (title, watchDate, favorite, rating) or just one of these or combinations of these.
     - **deleteSinglePrivateFilm**: I added a few checks on req.params to make sure that filmId is a number.
   - films/public/invited:
     - **getInvitedFilms:** I changed the sql query since the structure of the database has been changed. To select the films for which the logged-in user has been invited, I make a join between films table, reviews table and reviewers table.
