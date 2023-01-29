@@ -160,3 +160,43 @@ In the implementation of the above mentioned APIs, I had to make a few changes t
 - review schema: the schema has been changed to use to validate the request body for PUT operations. If the complete property is present and set to true, then reviewDate, rating and review will be required, whereas the field filmId and reviewerIds cannot be changed, so they're set as not required. reviewId is retrieved from the request parameters, so it is not needed in the request bodies.
 - review draft schema: draftId and reviewId are no more required as reviewId is retrieved from the request parameters whereas the draftId is automatically generated in the db. proposedRating, proposedReview and reviewerId (author of the draft) are still required as specified int he requirements. Similarly to the film schema, all these properties are still present in the overall data structure as they are important to identify the draft object when they are returned in GET operations.
 - agreement schema: draftId is no more required as it is retrieved from the request parameters. reviewerId and agreement (and notes in case of disagreement) are still required in the request body.
+
+### Logic and Interconnections
+
+Unauthenticated users can retrieve all public films by calling getPublicFilms API. Authenticated Users can use most of the APIs, some of which were already implemented during LAB1, e.g. createFilm, getPrivateFilms or getSinglePrivateFilm. All the standard CRUD operations for films where implemented, these include:
+
+- getPublicFilms
+- getSinglePublicFilm
+- updateSinglePublicFilm
+- deleteSinglePublicFilm
+- createFilm
+- getSinglePrivateFilm
+- updateSinglePrivateFilm
+- deleteSinglePrivateFilm
+- deleteSinglePublicFilm
+- getInvitedFilms
+
+Reviews and Films are connected through the pair of keys (reviewId and filmId), which pretty much allows to retrieve any information on a review issued for a specific filmId.
+Single reviewers can update the review they were assigned to by calling updateSingleReview whereas cooperative reviews will be managed differently: when the last co-assignee publishes their agreement by calling createAgreement, the review will be updated automatically. In general the CRUD operations that were implemented for reviews were the following:
+
+- getFilmReviews
+- issueFilmReview
+- getSingleReview
+- updateSingleReview
+- deleteSingleReview
+
+As for Drafts and Reviews, they're linked through the pair of keys (draftId and reviewId), and draft operations include the following standard GET and POST operations:
+
+- createDrafft
+- getSingleDraft
+- getAllDrafts
+  DELETE and PUT methods were not implemented as they were not required by the specifications.
+
+Finally, for the agreements related to a specific draft are identified by the pair (draftId and reviewerId), which identifies the co-assignee and the draft to which the agreement belongs to. Authenticated users can perform the following standard operations:
+
+- getSingleAgreement
+- getAllAgreements
+- createAgreement
+  Similarly to drafts, DELETE and PUT methods were not implemented as they were not required.
+
+One important thing to note is that URLs pointing to the full resource were included in the components to improve performance, network usage and scalability. However, in the specific case of this project, the information related to each resource is so little that it is not necessary to use self-links. In fact, in this case, the response bodies of HTTP methods include all the information about the resource, and using self-links would not bring any valuable benefit. In spite of that, these links could be useful in case of future rescaling of the system, they can also improve the overall maintainability and management.
