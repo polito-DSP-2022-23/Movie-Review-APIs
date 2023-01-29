@@ -243,7 +243,7 @@ module.exports.deleteSinglePrivateFilm = function deleteSinglePrivateFilm (req, 
         .then(function(response) {
             utils.writeJson(res, response, 204);
         })
-        .catch(function(response) {S
+        .catch(function(response) {
             if(response == 403){
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The user is not the owner of the film' }], }, 403);
             }

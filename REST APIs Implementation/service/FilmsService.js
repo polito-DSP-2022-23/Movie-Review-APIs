@@ -232,14 +232,12 @@ const e = require('cors');
  **/
  exports.deleteSinglePublicFilm = function(filmId, owner) {
   return new Promise((resolve, reject) => {
-      const sql1 = "SELECT owner FROM films f WHERE f.id = ?";
+      const sql1 = "SELECT owner FROM films f WHERE f.id = ? AND f.private = 0";
       db.all(sql1, [filmId], (err, rows) => {
           if (err)
               reject(err);
           else if (rows.length === 0)
               reject(404);
-          else if(rows[0].private == 1)
-            reject(404);
           else if(owner != rows[0].owner) {
               reject(403);
           }

@@ -423,6 +423,8 @@ const checkReviewCompleted = function(reviewId, filmId){
         db.all(sql, [reviewId, filmId], (err, rows)=>{
             if(err){
                 reject(err);
+            }else if(rows.length==0){
+                reject(404); //review does not exist
             }else if(rows[0].completed===1){
                 reject("403C"); 
             }else{
