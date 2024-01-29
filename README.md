@@ -100,7 +100,7 @@ The draft properties were also defined in a separate schema from that of the rev
 - validation: separating the schemas allows for more specifici and accurate validation of the data, as the properties and constraints of each schema can be clearly defined.
 - By separating the schema of the draft it might also be more secure to provide the information only to the inteded parties and not to show them directly to the public.
 - flexibility: the separation of the two schemas allows the API to evolve and adapt to different use cases, by adding or removing properties from one schema without affecting the other.
-- The **'Review' schema** has been changed from the one in the provided solution for LAB1 to adapt it to the new requirements. More specifically, the property reviewerId has been substituted by reviewId, which is now the unique identifier of the review. An additional property has been added (reviewerIds) to represent the reviewers of the associated review. It is an array containing the unique identifiers of the users who have received a review invitation. The array can be 1 item long, in the case of single user reviews. All the other fields remain unchanged. In particular, the filmId property will be used to keep the association between review and film. The new required fields have been updated to: filmId, reviewId and reviewerIds.
+- The **'Review' schema** has been changed from its previous version to adapt it to the new requirements. More specifically, the property reviewerId has been substituted by reviewId, which is now the unique identifier of the review. An additional property has been added (reviewerIds) to represent the reviewers of the associated review. It is an array containing the unique identifiers of the users who have received a review invitation. The array can be 1 item long, in the case of single user reviews. All the other fields remain unchanged. In particular, the filmId property will be used to keep the association between review and film. The new required fields have been updated to: filmId, reviewId and reviewerIds.
 - The **'Review Draft' schema** has been designed to describe the draft data structure. The draft object will be identified by the unique identifier draftId. Additionally, the schema contains the reviewId property which describes the association between a draft to its review. For this reason, it is not necessary to also add the properties from the review schema, as it would be redundant. All the other properties (including proposedRating, proposedReview, reviewerId - author of the draft - and open) have been added as requested in the requirements.
 - A separate '**Agreement' schema** has been designed to describe the specific agreements to a draft. It is identified by the joint properties of draftId and reviewerId, which is the reviewer who has made the agreement/disagreement. Additional properties such as agreeement and notes have been added, as requested in the requirements. More specifically, if the agreement is set to false (disagreement), then notes will be required.
 
@@ -111,7 +111,7 @@ In addition to the new schemas and modified/added APIs, the 'openapi.yaml' file 
 - Film APIs
   - films/private/{filmId}
     - **getSinglePrivateFilm:** I added a few checks on req.params to make sure that filmId is a number.
-    - **updateSinglePrivateFilm:** I removed the validation using the film schema because private was a required field. However, as specified in the requirements of LAB1, the visibility of a film should not be changed. So, I decided to manually validate the request body. These checks include:
+    - **updateSinglePrivateFilm:** I removed the validation using the film schema because private was a required field. However, the visibility of a film should not be changed. So, I decided to manually validate the request body. These checks include:
       - req.params to make sure that filmId is present and it is a number
       - request body is not empty
       - checkRequestBody is a function which receives as parameters the request body and a flag to indicate if the operation is for a public or private film. If it is a private film, then it checks the title, watchDate format, rating and favorite. If the request body also has a private field, then it returns an error to remind that visibility cannot be changed.
@@ -161,7 +161,7 @@ In the implementation of the above mentioned APIs, I had to make a few changes t
 
 ### Logic and Interconnections
 
-Unauthenticated users can retrieve all public films by calling getPublicFilms API. Authenticated Users can use most of the APIs, some of which were already implemented during LAB1, e.g. createFilm, getPrivateFilms or getSinglePrivateFilm. All the standard CRUD operations for films where implemented, these include:
+Unauthenticated users can retrieve all public films by calling getPublicFilms API. Authenticated Users can use most of the APIs, e.g. createFilm, getPrivateFilms or getSinglePrivateFilm. All the standard CRUD operations for films where implemented, these include:
 
 - getPublicFilms
 - getSinglePublicFilm
