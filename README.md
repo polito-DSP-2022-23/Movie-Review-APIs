@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is an extension of the REST APIs for Laboratory 1, introducing the possibility for reviews to be completed by more than one user in a cooperative way.
+This project involves the implementation of REST APIs used for the management of individual and collaborative reviews on tv shows and movies.
 
 ## Directory Structure
 
