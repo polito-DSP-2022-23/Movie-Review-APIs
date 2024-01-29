@@ -106,8 +106,6 @@ The draft properties were also defined in a separate schema from that of the rev
 
 ### API Design
 
-#### Changed APIs (wrt the proposed solution for LAB1)
-
 In addition to the new schemas and modified/added APIs, the 'openapi.yaml' file also includes examples of body requests for PUT and POST operations, as well as examples of response bodies for GET operations and of error messages for each API.
 
 - Film APIs
